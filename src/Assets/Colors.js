@@ -1,12 +1,11 @@
 export default {
 
-    primary: "#E3B435",
-    secondary: "#E3B435",
-
+    darkThemeButtonOperatorsBG: "#F4A810",
+    lightThemeButtonOperatorsBG: "#F7B93D",
     darkThemeButtonColor: "white",
     lightThemeButtonColor: "black",
-    textColor: "#C08E0B",
+    darkTextColorResult: "#F4A810",
+    lightTextColorResult: "#F4A810",
     darkThemeButtonBG: "#575859",
     lightThemeButtonBG: "white"
-
 }

@@ -1,290 +1,402 @@
-import { View, Text, SafeAreaView, Dimensions, TouchableOpacity, InteractionManager, FlatList } from 'react-native'
-import React, { useEffect, useMemo, useState } from 'react'
-import MainScreenCss from '../StyleSheet/MainScreenCss'
-import Buttons from '../Components/Buttons'
-import Colors from '../Assets/Colors'
-import { Switch } from 'react-native-switch'
-
-const width = Dimensions.get("screen").width
-const height = Dimensions.get("screen").height
+import {
+    View,
+    Text,
+    SafeAreaView,
+    Dimensions,
+    TouchableOpacity,
+    InteractionManager,
+    FlatList,
+    Image,
+} from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import MainScreenCss from '../StyleSheet/MainScreenCss';
+import Buttons from '../Components/Buttons';
+import Colors from '../Assets/Colors';
+import { Switch } from 'react-native-switch';
+import * as Animatable from 'react-native-animatable';
 
 export default function MainScreen({ navigation }) {
+    const [themeDark, setThemeDark] = useState(false);
+    const [result, setResult] = useState('');
+    const [previousResult, setpreviousResult] = useState('');
 
-
-
-
-
-
-    const [themeDark, setThemeDark] = useState(true)
-    const [result, setResult] = useState("0")
-    const [previousResult, setpreviousResult] = useState("0")
-
-
-
-    const Calculation = (val) => {
-        if (val === "AC") {
-            setpreviousResult("0")
-            setResult("0")
+    const Calculation = val => {
+        if (val === 'AC') {
+            setpreviousResult('');
+            setResult('');
         }
-        else if (val === "DL") {
-            console.log("previousResult", previousResult);
-
-            setpreviousResult((prev) => {
-                console.log("previousResult", typeof prev);
-
-                return Number(String(prev)?.slice(0, -1))
-            })
-
-        }
-        else if (val === "=") {
-
-            try {
-                if (previousResult?.slice(-1) == "+" || previousResult?.slice(-1) == "-" || previousResult?.slice(-1) == "*" || previousResult?.slice(-1) == "/" || previousResult?.slice(-1) == "%" || previousResult?.slice(-1) == ".") {
-                    setpreviousResult(eval(previousResult).slice(0, -1))
-                }
-                else {
-                    setpreviousResult(eval(previousResult))
-                    setResult(previousResult)
-                }
-            }
-            catch (e) {
-                setResult("Format Error")
-            }
-
-        }
-        else {
-
-
-            if (previousResult === "0") {
-                if (isNaN(val)) {
-                    setpreviousResult(previousResult + val)
-                }
-                else {
-                    setpreviousResult(val)
-                }
-            }
-            else if (previousResult === isNaN(val)) {
-
-
-                if (previousResult?.slice(-1) == "+" || previousResult?.slice(-1) == "-" || previousResult?.slice(-1) == "*" || previousResult?.slice(-1) == "/" || previousResult?.slice(-1) == "%" || previousResult?.slice(-1) == ".") {
-                    setpreviousResult(previousResult.slice(0, -1) + val)
-                }
-                else {
-                    setpreviousResult(previousResult + val)
-                }
+        else if (previousResult === "0") {
+            if (val === "0" || val === "00") {
+                setpreviousResult(previousResult)
             }
             else {
                 setpreviousResult(previousResult + val)
-
             }
         }
-
-    }
-
+        else if (val == '00') {
+            if (previousResult.length === 0) {
+                setpreviousResult(previousResult + '0');
+            }
+            else {
+                setpreviousResult(previousResult + '00');
+            }
+        }
+        else if (previousResult === 'Error') {
+            if (
+                val === '/' ||
+                val === '*' ||
+                val === '%' ||
+                val === '-' ||
+                val === '+' ||
+                val === '='
+            ) {
+                setpreviousResult('');
+            }
+            else {
+                setpreviousResult('');
+            }
+        }
+        else if (val === 'DL') {
+            setpreviousResult(prev => {
+                if (prev.length == 1) {
+                    setResult('');
+                    return result;
+                } else {
+                    return String(prev)?.slice(0, -1);
+                }
+            });
+        } else if (val === '=') {
+            try {
+                if (previousResult === "") {
+                    setpreviousResult("")
+                }
+                else if (
+                    previousResult.slice(0, 1) === '/' ||
+                    previousResult.slice(0, 1) === '*' ||
+                    previousResult.slice(0, 1) === '%'
+                ) {
+                    setpreviousResult('Error');
+                }
+                else if (previousResult === 'Error') {
+                    setpreviousResult('');
+                }
+                else if (
+                    previousResult?.slice(-1) == '+' ||
+                    previousResult?.slice(-1) == '-' ||
+                    previousResult?.slice(-1) == '*' ||
+                    previousResult?.slice(-1) == '/' ||
+                    previousResult?.slice(-1) == '%' ||
+                    previousResult?.slice(-1) == '.'
+                ) {
+                    setpreviousResult(eval(previousResult).slice(0, -1));
+                } else {
+                    setpreviousResult(eval(previousResult));
+                    setResult(previousResult);
+                }
+            } catch (e) {
+                setResult(previousResult);
+            }
+        } else {
+            // console.log("previousResult", typeof previousResult)
+            if (previousResult === '0') {
+                if (isNaN(val)) {
+                    setpreviousResult(previousResult + val);
+                } else {
+                    setpreviousResult(val);
+                }
+            } else if (isNaN(val)) {
+                let data = previousResult.toString();
+                if (
+                    data?.slice(-1) == '+' ||
+                    data?.slice(-1) == '-' ||
+                    data?.slice(-1) == '*' ||
+                    data?.slice(-1) == '/' ||
+                    data?.slice(-1) == '%' ||
+                    data?.slice(-1) == '.'
+                ) {
+                    setpreviousResult(previousResult.slice(0, -1) + val);
+                } else {
+                    setpreviousResult(data + val);
+                }
+            } else {
+                setpreviousResult(previousResult + val);
+            }
+        }
+    };
 
     const values = [
         {
-            value: "AC",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.primary : Colors.primary
+            value: 'AC',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonOperatorsBG
+                : Colors.lightThemeButtonOperatorsBG,
         },
         {
-            value: "DL",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: 'DL',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "%",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: '%',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "/",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.primary : Colors.primary
+            value: '/',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonOperatorsBG
+                : Colors.lightThemeButtonOperatorsBG,
         },
 
         {
-            value: "7",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
-
+            value: '7',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "8",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: '8',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "9",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: '9',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "*",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.primary : Colors.primary
+            value: '*',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonOperatorsBG
+                : Colors.lightThemeButtonOperatorsBG,
         },
         {
-            value: "4",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: '4',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "5",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: '5',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "6",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: '6',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "-",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.primary : Colors.primary
+            value: '-',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonOperatorsBG
+                : Colors.lightThemeButtonOperatorsBG,
         },
         {
-            value: "1",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: '1',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "2",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: '2',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "3",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: '3',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "+",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.primary : Colors.primary
+            value: '+',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonOperatorsBG
+                : Colors.lightThemeButtonOperatorsBG,
         },
         {
-            value: "00",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: '00',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "0",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: '0',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: ".",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.darkThemeButtonBG : Colors.lightThemeButtonBG
+            value: '.',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonBG
+                : Colors.lightThemeButtonBG,
         },
         {
-            value: "=",
-            color: themeDark ? Colors.darkThemeButtonColor : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark ? Colors.primary : Colors.primary
+            value: '=',
+            color: themeDark
+                ? Colors.darkThemeButtonColor
+                : Colors.lightThemeButtonColor,
+            backgroundColor: themeDark
+                ? Colors.darkThemeButtonOperatorsBG
+                : Colors.lightThemeButtonOperatorsBG,
         },
-
-
-    ]
-
+    ];
     return (
-        <SafeAreaView style={[MainScreenCss.fullScreen, { backgroundColor: themeDark ? "#575859" : "#DBD9D5" }]}>
-
-            <View
-                style={{
-                    alignSelf: "flex-end",
-                    marginRight: 20,
-
-                }}
-            >
-                <Switch
-                    value={themeDark}
-                    onValueChange={() => setThemeDark(!themeDark)}
-                    thumbColor={themeDark ? "white" : "black"}
-                    trackColor={themeDark ? "yellow" : "red"}
-                    circleSize={23}
-                    barHeight={20}
-                    backgroundActive={'#DBD9D5'}
-                    backgroundInactive={'white'}
-                    activeText={''}
-                    inActiveText={''}
-                    circleActiveColor={'white'}
-                    circleInActiveColor={'#000000'}
-                    switchBorderRadius={10}
-                    switchWidthMultiplier={1.5}
-
-                />
-
-            </View>
-            <View
-                style={{
-                    borderColor: themeDark ? "white" : "#6B6F71",
-                    width: width / 1.13,
-                    // height: width / 1.3,
-                    alignSelf: "center",
-                    // paddingRight: 10,
-                    marginTop: 10,
-                    borderWidth: 1,
-
-                }}>
-
+        <SafeAreaView
+            style={[
+                MainScreenCss.mainContainer,
+                { backgroundColor: themeDark ? '#252929' : 'white' },
+            ]}>
+            <View style={MainScreenCss.switchView}>
                 <View
-                    style={{
-                        borderColor: themeDark ? "white" : "#6B6F71",
-                        width: width / 1.1,
-                        alignSelf: "center",
-                        paddingRight: 10,
-                        marginTop: 10,
-                        // borderWidth: 1
-                    }}>
-                    <Text
-                        numberOfLines={2}
-                        style={{
-                            color: themeDark ? Colors.textColor : Colors.textColor,
-                            fontSize: 42,
-                            alignSelf: "flex-end",
-                            paddingTop: 10,
-                        }}
-                    >{result.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Text>
-                    <Text
-                        numberOfLines={4}
-                        style={{
-                            color: themeDark ? "#E3B539" : "#E3B539",
-                            fontSize: 27,
-                            alignSelf: "flex-end",
-                            paddingTop: 10,
-                        }}
-                    >{previousResult.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Text>
+                    style={[MainScreenCss.switchViewCostom, { backgroundColor: themeDark ? "white" : "black", }]}
+                >
+
+                    <TouchableOpacity
+                        onPress={() => setThemeDark(false)}
+                    >
+                        <Image
+                            style={{
+                                height: 20,
+                                width: 20,
+                            }}
+                            source={require("../Assets/Images/light1.png")} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => setThemeDark(true)}
+                    >
+                        <Image
+                            style={{
+                                height: 18,
+                                width: 18,
+                                tintColor: themeDark ? "#156DB0" : "lightblue"
+                            }}
+                            source={require("../Assets/Images/dark1.png")} />
+                    </TouchableOpacity>
                 </View>
             </View>
-
             <View
-                style={{
-                    alignSelf: "center",
-                    justifyContent: "center",
-                    position: "absolute",
-                    bottom: 0,
-                }}>
+                style={[
+                    MainScreenCss.resultContainer,
+                    {
+                        borderColor: themeDark ? 'white' : '#6B6F71',
+                        backgroundColor: themeDark ? "#252929" : "white"
+                    },
+                ]}>
+                <Text
+                    style={[
+                        MainScreenCss.resultText,
+                        { color: themeDark ? Colors.darkTextColorResult : Colors.lightTextColorResult },
+                    ]}>
+                    {result.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                </Text>
+
+                <Text
+                    numberOfLines={2}
+                    style={[
+                        MainScreenCss.previousResultText,
+                        {
+                            color: themeDark
+                                ? Colors.darkTextColorResult
+                                : Colors.lightTextColorResult,
+                        },
+                    ]}>
+                    {!!previousResult
+                        ? previousResult.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                        : previousResult}
+                </Text>
+
+            </View>
+
+
+            <View style={[MainScreenCss.buttonContainer, {
+                backgroundColor: themeDark ? "#575859" : "#DBD9D5"
+            }]}>
                 <FlatList
                     scrollEnabled={false}
                     style={{
-                        alignSelf: "center",
-                        bottom: 10
+                        alignSelf: 'center',
+                        bottom: 10,
                     }}
                     data={values}
-                    numColumns={"4"}
+                    numColumns={'4'}
                     renderItem={({ item, index }) => (
                         <Buttons
                             value={item.value}
-                            shadowColor={themeDark ? "white" : "black"}
+                            shadowColor={themeDark ? 'white' : 'black'}
                             backgroundColor={item.backgroundColor}
                             color={item.color}
-                            calculate={(val) => Calculation(val)} />
+                            calculate={val => Calculation(val)}
+                        />
                     )}
                 />
             </View>
-        </SafeAreaView >
-    )
+        </SafeAreaView>
+    );
 }

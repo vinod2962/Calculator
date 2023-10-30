@@ -27,7 +27,6 @@ export default function Buttons(props) {
                 },
                 shadowOpacity: 0.20,
                 shadowRadius: 1.41,
-
                 elevation: 2,
                 backgroundColor: props.backgroundColor,
                 borderRadius: 23

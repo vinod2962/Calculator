@@ -14,7 +14,8 @@ export default function Splash({ navigation }) {
         <SafeAreaView
             style={splashCss.fullScreen}>
             <View>
-                <Image
+                <Animatable.Image
+                    animation={"zoomIn"}
                     style={{
                         height: 90,
                         width: 90,
@@ -23,7 +24,7 @@ export default function Splash({ navigation }) {
                     }}
                     source={require("../Assets/Images/logo.png")} />
                 <Animatable.Text
-                    animation={"slideInUp"}
+                    animation={"zoomIn"}
                     style={splashCss.text}
                 >Calulator</Animatable.Text>
             </View>
