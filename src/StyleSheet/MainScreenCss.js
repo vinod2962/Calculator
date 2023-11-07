@@ -8,8 +8,10 @@ export default StyleSheet.create({
     },
 
     switchView: {
-        alignSelf: "flex-end",
+        justifyContent: "space-between",
         marginRight: 20,
+        marginLeft: 10,
+        flexDirection: "row"
     },
 
     switchViewCostom: {
@@ -26,16 +28,18 @@ export default StyleSheet.create({
     resultContainer: {
         width: "100%",
         alignSelf: "center",
-        marginTop: 7,
+        marginTop: 15,
         flex: 1,
-        paddingEnd: 25
+        paddingEnd: 25,
+
 
     },
     resultText: {
 
-        fontSize: width * 0.07,
+        fontSize: width * 0.06,
         alignSelf: "flex-end",
-        paddingTop: 5,
+        paddingTop: 3,
+
     },
 
     previousResultText: {
@@ -51,7 +55,7 @@ export default StyleSheet.create({
         bottom: 0,
         backgroundColor: "#575859",
         width: "100%",
-        paddingTop: 15
+        paddingTop: 10
     }
 
 })

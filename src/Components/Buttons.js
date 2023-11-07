@@ -6,12 +6,10 @@ const width = Dimensions.get("screen").width
 const height = Dimensions.get("screen").height
 export default function Buttons(props) {
 
-    const { calculate } = props;
+    const { onClick } = props;
     return (
         <TouchableOpacity
-
-
-            onPress={() => calculate(props.value)}
+            onPress={() => onClick(props.value)}
             style={{
                 height: width / 5.3,
                 width: width / 5.3,

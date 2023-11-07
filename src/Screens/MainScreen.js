@@ -4,44 +4,71 @@ import {
     SafeAreaView,
     Dimensions,
     TouchableOpacity,
-    InteractionManager,
     FlatList,
     Image,
+    Alert,
+    alert,
+    Button,
 } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import MainScreenCss from '../StyleSheet/MainScreenCss';
 import Buttons from '../Components/Buttons';
-import Colors from '../Assets/Colors';
-import { Switch } from 'react-native-switch';
-import * as Animatable from 'react-native-animatable';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { changeTheme } from '../redux/ThemeSlice';
+import comfig from '../redux/comfig';
 
+var List = []
 export default function MainScreen({ navigation }) {
-    const [themeDark, setThemeDark] = useState(false);
+
+    const THEME = useSelector(state => state.theme)
+    const dispatch = useDispatch()
+    // let themeName = JSON.stringify(THEME)
+    // console.log("hhhhh =>" + THEME.data)
+
+
+    useEffect(() => {
+        getData()
+        getData1()
+    }, [])
+
+
+    // const [themeDark, setThemeDark] = useState(false);
     const [result, setResult] = useState('');
     const [previousResult, setpreviousResult] = useState('');
+    const [caption, setcaption] = useState('');
+    const [data, setData] = useState([])
+
+    const getData = async () => {
+        let userData = await AsyncStorage.getItem("userData")
+        let ObjData = JSON.parse(userData)
+        List = [...ObjData]
+        setData(List)
+    }
+    const getData1 = async () => {
+        let theme = await AsyncStorage.getItem("theme")
+
+    }
+
 
     const Calculation = val => {
         if (val === 'AC') {
             setpreviousResult('');
             setResult('');
-        }
-        else if (previousResult === "0") {
-            if (val === "0" || val === "00") {
-                setpreviousResult(previousResult)
+        } else if (previousResult === '0') {
+            if (val === '0' || val === '00') {
+                setpreviousResult(previousResult);
+            } else {
+                setpreviousResult(previousResult + val);
             }
-            else {
-                setpreviousResult(previousResult + val)
-            }
-        }
-        else if (val == '00') {
+        } else if (val == '00') {
             if (previousResult.length === 0) {
                 setpreviousResult(previousResult + '0');
-            }
-            else {
+            } else {
                 setpreviousResult(previousResult + '00');
             }
-        }
-        else if (previousResult === 'Error') {
+        } else if (previousResult === 'Error') {
             if (
                 val === '/' ||
                 val === '*' ||
@@ -51,12 +78,10 @@ export default function MainScreen({ navigation }) {
                 val === '='
             ) {
                 setpreviousResult('');
-            }
-            else {
+            } else {
                 setpreviousResult('');
             }
-        }
-        else if (val === 'DL') {
+        } else if (val === 'DL') {
             setpreviousResult(prev => {
                 if (prev.length == 1) {
                     setResult('');
@@ -67,20 +92,17 @@ export default function MainScreen({ navigation }) {
             });
         } else if (val === '=') {
             try {
-                if (previousResult === "") {
-                    setpreviousResult("")
-                }
-                else if (
+                if (previousResult === '') {
+                    setpreviousResult('');
+                } else if (
                     previousResult.slice(0, 1) === '/' ||
                     previousResult.slice(0, 1) === '*' ||
                     previousResult.slice(0, 1) === '%'
                 ) {
                     setpreviousResult('Error');
-                }
-                else if (previousResult === 'Error') {
+                } else if (previousResult === 'Error') {
                     setpreviousResult('');
-                }
-                else if (
+                } else if (
                     previousResult?.slice(-1) == '+' ||
                     previousResult?.slice(-1) == '-' ||
                     previousResult?.slice(-1) == '*' ||
@@ -127,217 +149,209 @@ export default function MainScreen({ navigation }) {
     const values = [
         {
             value: 'AC',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonOperatorsBG
-                : Colors.lightThemeButtonOperatorsBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonOperatorsBG
         },
         {
             value: 'DL',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '%',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '/',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonOperatorsBG
-                : Colors.lightThemeButtonOperatorsBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonOperatorsBG
         },
 
         {
             value: '7',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '8',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '9',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '*',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonOperatorsBG
-                : Colors.lightThemeButtonOperatorsBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonOperatorsBG
         },
         {
             value: '4',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '5',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '6',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '-',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonOperatorsBG
-                : Colors.lightThemeButtonOperatorsBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonOperatorsBG
         },
         {
             value: '1',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '2',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '3',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '+',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonOperatorsBG
-                : Colors.lightThemeButtonOperatorsBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonOperatorsBG
         },
         {
             value: '00',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '0',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '.',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonBG
-                : Colors.lightThemeButtonBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonBG
         },
         {
             value: '=',
-            color: themeDark
-                ? Colors.darkThemeButtonColor
-                : Colors.lightThemeButtonColor,
-            backgroundColor: themeDark
-                ? Colors.darkThemeButtonOperatorsBG
-                : Colors.lightThemeButtonOperatorsBG,
+            color: comfig().ThemeButtonColor,
+            backgroundColor: comfig().ThemeButtonOperatorsBG
         },
     ];
+    const saveItem = async val => {
+        if (
+            val === '' ||
+            val === null ||
+            val === undefined ||
+            previousResult === '' ||
+            previousResult === null ||
+            previousResult === undefined
+        ) {
+            Alert.alert('Alert', 'Please fill all fields');
+        } else {
+            setcaption(val);
+            const obj = {
+                caption: caption,
+                previousResult: previousResult,
+            };
+            List.push(obj)
+            const resultData = JSON.stringify(List);
+            AsyncStorage.setItem('userData', resultData);
+        }
+    };
+
+    const save = () => {
+        Alert.prompt('Your Result : ' + previousResult, 'Caption', [
+            {
+                text: 'Save',
+                onPress: val => saveItem(val),
+            },
+            {
+                text: 'Cancel',
+                onPress: () => null,
+            },
+        ]);
+    };
+
     return (
         <SafeAreaView
             style={[
                 MainScreenCss.mainContainer,
-                { backgroundColor: themeDark ? '#252929' : 'white' },
+                { backgroundColor: comfig().mainSafeAreaBG },
             ]}>
+            {/* <Button
+                onPress={() => navigation.goBack()}
+                title='backTheme'
+            /> */}
+
             <View style={MainScreenCss.switchView}>
                 <View
-                    style={[MainScreenCss.switchViewCostom, { backgroundColor: themeDark ? "white" : "black", }]}
-                >
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                    <TouchableOpacity onPress={() => save()}>
+                        <Image
+                            style={{
+                                height: 23,
+                                width: 23,
+                                tintColor: comfig().saveDataListImageIcon,
+                            }}
+                            source={require('../Assets/Images/saveImg.png')}
+                        />
+                    </TouchableOpacity>
 
                     <TouchableOpacity
-                        onPress={() => setThemeDark(false)}
-                    >
+                        onPress={() => {
+                            navigation.navigate('ListData');
+                        }}>
+                        <Image
+                            style={{
+                                height: 22,
+                                width: 22,
+                                tintColor: comfig().saveDataListImageIcon,
+                                marginLeft: 7,
+                            }}
+                            source={require('../Assets/Images/listIcon.png')}
+                        />
+                    </TouchableOpacity>
+                </View>
+
+                <View
+                    style={[
+                        MainScreenCss.switchViewCostom,
+                        { backgroundColor: comfig().switchViewCostomBG },
+                    ]}>
+                    <TouchableOpacity onPress={() => dispatch(changeTheme("LIGHT"))}>
                         <Image
                             style={{
                                 height: 20,
                                 width: 20,
                             }}
-                            source={require("../Assets/Images/light1.png")} />
+                            source={require('../Assets/Images/light1.png')}
+                        />
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => setThemeDark(true)}
-                    >
+                    <TouchableOpacity onPress={() => dispatch(changeTheme("DARK"))}>
                         <Image
                             style={{
                                 height: 18,
                                 width: 18,
-                                tintColor: themeDark ? "#156DB0" : "lightblue"
+                                tintColor: THEME.data == "LIGHT" ? 'lightblue' : THEME.data == "DARK" ? '#156DB0' : null,
                             }}
-                            source={require("../Assets/Images/dark1.png")} />
+                            source={require('../Assets/Images/dark1.png')}
+                        />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -345,14 +359,17 @@ export default function MainScreen({ navigation }) {
                 style={[
                     MainScreenCss.resultContainer,
                     {
-                        borderColor: themeDark ? 'white' : '#6B6F71',
-                        backgroundColor: themeDark ? "#252929" : "white"
+                        borderColor: comfig().resultContainerBorderColor,
+                        backgroundColor: comfig().resultContainerBG,
                     },
                 ]}>
                 <Text
                     style={[
                         MainScreenCss.resultText,
-                        { color: themeDark ? Colors.darkTextColorResult : Colors.lightTextColorResult },
+                        {
+                            color: comfig().TextColorResult
+
+                        },
                     ]}>
                     {result.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 </Text>
@@ -362,22 +379,24 @@ export default function MainScreen({ navigation }) {
                     style={[
                         MainScreenCss.previousResultText,
                         {
-                            color: themeDark
-                                ? Colors.darkTextColorResult
-                                : Colors.lightTextColorResult,
+                            color: comfig().TextColorResult
+
                         },
                     ]}>
                     {!!previousResult
                         ? previousResult.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                         : previousResult}
                 </Text>
-
             </View>
 
+            <View
+                style={[
+                    MainScreenCss.buttonContainer,
+                    {
+                        backgroundColor: comfig().buttonContainerBG,
+                    },
 
-            <View style={[MainScreenCss.buttonContainer, {
-                backgroundColor: themeDark ? "#575859" : "#DBD9D5"
-            }]}>
+                ]}>
                 <FlatList
                     scrollEnabled={false}
                     style={{
@@ -389,10 +408,10 @@ export default function MainScreen({ navigation }) {
                     renderItem={({ item, index }) => (
                         <Buttons
                             value={item.value}
-                            shadowColor={themeDark ? 'white' : 'black'}
+                            shadowColor={THEME.data == "LIGHT" ? 'black' : THEME.data == "DARK" ? 'white' : null}
                             backgroundColor={item.backgroundColor}
                             color={item.color}
-                            calculate={val => Calculation(val)}
+                            onClick={val => Calculation(val)}
                         />
                     )}
                 />
